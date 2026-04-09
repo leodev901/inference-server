@@ -1,3 +1,13 @@
+---
+title: Inference Server
+emoji: 🤖
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+---
+
+
 # Inference Server (Embedding Microservice) 🚀
 
 이 디렉토리는 메인 로직(FastAPI 등)과 무거운 AI 모델 처리를 완전히 분리하기 위해 구성된 **추론 전용 마이크로서비스(Inference Microservice)**입니다.
