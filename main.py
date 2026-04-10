@@ -6,6 +6,14 @@ from pydantic import BaseModel
 
 from contextlib import asynccontextmanager
 
+import logging
+
+# 기본 로거 설정
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+
 # lifespan 구조를 활용해 서버가 켜질 때 딱 한 번만 2GB 모델 로드
 model = None
 EMBEDDING_MODEL_NAME = "intfloat/multilingual-e5-large"
@@ -27,11 +35,6 @@ app = FastAPI(
     lifespan=life_span
 )
 
-import logging
-
-# 기본 로거 설정
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # 전역 이벤트 헨들러 등록 -> 로깅
 @app.exception_handler(Exception)
@@ -60,13 +63,16 @@ class EmbedRequest(BaseModel):
 
 @app.post("/api/v1/embed")
 async def create_embedding(req: EmbedRequest):
+    logger.info(f"임베딩 생성 요청: {req.text}")
+    
     # 텍스트를 받아 벡터로 치환 후 리턴
     # e5 모델은 검색어(Query) 앞에 반드시 "query: "를 붙여야 합니다.
     if EMBEDDING_MODEL_NAME == "intfloat/multilingual-e5-large":
         query_prefix = f"query: {req.text}"
     else:
         query_prefix = req.text
-    vector = model.encode(query_prefix).tolist()
+    vector = model.encode(query_prefix).tolist()    
+    # logger.info(f"임베딩 생성 완료: {vector}")
     return {"embedding": vector}
 
 
