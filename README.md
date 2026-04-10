@@ -57,3 +57,11 @@ graph LR
 > 🔗 **배포된 실제 주소 예시**: `https://{본인아이디}-vehicle-manual-inference.hf.space`
 
 이제 메인 서버의 `chat_service.py` 코드 중 `http://localhost:8010/api/v1/embed` 부분을 **새로 받은 Direct URL + /api/v1/embed** 로 교체하기만 하면 모든 연동이 끝납니다! 🎉
+
+
+Hugging Fasce에 배포 하기
+```bash
+git remote add spaces https://leodev901:hf_자신의토큰복붙@huggingface.co/spaces/leodev901/inference-server
+
+git push spaces main
+```

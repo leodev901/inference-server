@@ -1,5 +1,6 @@
 # inference_server/main.py (예시 가이드)
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import RedirectResponse, JSONResponse
 from sentence_transformers import SentenceTransformer
 from pydantic import BaseModel
 
@@ -25,6 +26,34 @@ app = FastAPI(
     title="Inference Server: SentenceTransformer",
     lifespan=life_span
 )
+
+import logging
+
+# 기본 로거 설정
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# 전역 이벤트 헨들러 등록 -> 로깅
+@app.exception_handler(Exception)
+async def exception_handler(request: Request, exc: Exception):
+    # AGENTS.md 규칙: 내부 로깅은 상세하게 에러 스택을 남기고
+    logger.exception("추론 서버 내부 치명적 에러 발생: %s", str(exc))
+    
+    # 사용자/외부 API에는 정제된 메시지만 전달
+    return JSONResponse(
+        status_code=500,
+        content={
+            "status": "error",
+            "http_status_code": 500,
+            "message": "서버 내부에서 임베딩 생성 중 오류가 발생했습니다. 서버 로그를 확인해주세요 (https://huggingface.co/spaces/leodev901/inference-server)"
+        }
+    )
+
+# 루트 접근시 Swagger-ui로 리디렉션
+@app.get("/")
+async def root():
+    return RedirectResponse(url="/docs")
+
 
 class EmbedRequest(BaseModel):
     text: str
