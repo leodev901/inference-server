@@ -1,0 +1,26 @@
+name: Sync to Hugging Face Space
+
+# main 브랜치에 push가 발생할 때마다 이 작업이 실행됩니다.
+on:
+  push:
+    branches: [main]
+  # GitHub Actions 탭에서 수동으로 실행할 수 있게 해주는 옵션입니다.
+  workflow_dispatch:
+
+jobs:
+  sync-to-hub:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # 전체 히스토리를 가져오기 위해 0으로 설정합니다.
+
+      - name: Push to Hugging Face Spaces
+        env:
+          # Step 2에서 등록한 시크릿을 불러옵니다.
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          # 허깅페이스의 Git 저장소 주소를 설정합니다.
+          # LEO님이 공유해주신 스페이스 주소를 반영했습니다.
+          git push https://leodev901:$HF_TOKEN@huggingface.co/spaces/leodev901/inference-server main
